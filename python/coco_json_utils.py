@@ -243,11 +243,13 @@ class CocoJsonCreator():
         """
         license_json = self.dataset_info['license']
         lju = LicenseJsonUtils()
-        return lju.create_coco_license(
+        lic = lju.create_coco_license(
             url = license_json['url'],
             id = license_json['id'],
             name = license_json['name']
         )
+
+        return [lic]
 
     def create_categories(self):
         """Returns:
@@ -288,7 +290,8 @@ class CocoJsonCreator():
         for file_name, mask_def in tqdm(self.mask_definition['masks'].items()):
             # create coco image json item
             image_path = Path(self.dataset_dir) / file_name
-            image_objs = iju.create_coco_image(image_path, image_id, image_license)
+            image_obj = iju.create_coco_image(image_path, image_id, image_license)
+            image_objs.append(image_obj)
 
             mask_path = Path(self.dataset_dir) / mask_def['mask']
 
@@ -298,7 +301,7 @@ class CocoJsonCreator():
                 category_ids_by_rgb[rgb_color] = category_id_by_name[category['category']]
 
             annotation_obj = aju.create_coco_annotations(mask_path, image_id, category_ids_by_rgb)
-            annotation_objs.append(annotation_obj)
+            annotation_objs += annotation_obj
             image_id += 1
 
         return image_objs, annotation_objs
