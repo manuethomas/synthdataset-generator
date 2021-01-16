@@ -97,8 +97,9 @@ class MaskJsonUtils():
         """
 
         serialized_super_cats = dict()
-        for super_cats, category_set in self.super_categories.items():
-            serialized_super_cats[super_cats] = list(category_set)
+
+        for super_cats, category_set in sorted(self.super_categories.items()):
+            serialized_super_cats[super_cats] = sorted(category_set)
 
         return serialized_super_cats
 
@@ -210,15 +211,15 @@ class ImageComposition():
         """
 
         self.foregrounds_dict = dict()
-         
-        for super_category_dir in self.foregrounds_dir.iterdir():
+
+        for super_category_dir in sorted(self.foregrounds_dir.iterdir()):
             # if not directory raise warning
             if not super_category_dir.is_dir():
                 warnings.warn(f'file found in foregrounds directory (expected a super categories directory), ignoring: {super_category_dir}')
                 continue
 
             # This is a super category directory
-            for category_dir in super_category_dir.iterdir():
+            for category_dir in sorted(super_category_dir.iterdir()):
                 # if not directory raise warning
                 if not category_dir.is_dir():
                     warnings.warn(f'file found in super category directory (expected a category directory), ignoring: {category_dir}')
