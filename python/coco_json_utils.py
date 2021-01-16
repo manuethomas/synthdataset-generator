@@ -340,7 +340,6 @@ if __name__ == "__main__":
     help="Path to dataset_info json file")
     
     args = parser.parse_args()
-    print(args)
 
     cjc = CocoJsonCreator()
     cjc.main(args)
