@@ -430,29 +430,41 @@ class ImageComposition():
     def _transform_foreground(self, fg, fg_path):
         # Open foreground and get alpha channel
         # This is done to check for transparent background in foreground
-        fg_image = Image.open(fg_path)
-        fg_alpha = np.array(fg_image.getchannel(3))
+        self.fg_image = Image.open(fg_path)
+        fg_alpha = np.array(self.fg_image.getchannel(3))
         assert np.any(fg_alpha == 0), f'foreground needs to have transparent background: {str(fg_path)}'
 
         # Applying transformations
 
         # Rotating foreground
         angle_degrees = random.randint(0, 359)
-        fg_image = fg_image.rotate(angle_degrees, resample=Image.BICUBIC, expand=True)
+        self.fg_image = self.fg_image.rotate(angle_degrees, resample=Image.BICUBIC, expand=True)
+
+        # Checking if size of rotated image is greater than output image
+        self._check_imgsize(self.fg_image)
 
         # Scaling foreground
         scale = random.random() * .5 + .5 # Pick number between .5 and 1
-        new_size = (int(fg_image.size[0] * scale), int(fg_image.size[1] * scale))
-        fg_image = fg_image.resize(new_size, resample=Image.BICUBIC)
+        new_size = (int(self.fg_image.size[0] * scale), int(self.fg_image.size[1] * scale))
+        self.fg_image = self.fg_image.resize(new_size, resample=Image.BICUBIC)
 
         # Adjust foreground brightness
         brightness_factor = random.random() * .4 + .7 # pick number between .4 and 1.1
-        enhancer = ImageEnhance.Brightness(fg_image)
-        fg_image = enhancer.enhance(brightness_factor)
+        enhancer = ImageEnhance.Brightness(self.fg_image)
+        self.fg_image = enhancer.enhance(brightness_factor)
 
         # Add other transformations here
 
-        return fg_image
+        return self.fg_image
+
+    def _check_imgsize(self, img):
+        if(img.size[0] > self.width or img.size[1] > self.height):
+            maximum_width = self.width
+            maximum_height = self.height
+            scale = min(maximum_width/img.size[0], maximum_height/img.size[1])
+            new_size = (int(self.fg_image.size[0] * scale), int(self.fg_image.size[1] * scale))
+            self.fg_image = self.fg_image.resize(new_size, resample=Image.BICUBIC)
+
 
     def _create_info(self):
         # A convenience wizard for automatically creating dataset info
